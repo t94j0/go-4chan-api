@@ -226,7 +226,7 @@ type Thread struct {
 // GetIndex hits the API for an index of thread stubs from the given board and
 // page.
 func GetIndex(board string, page int) ([]*Thread, error) {
-	resp, err := get(APIURL, fmt.Sprintf("/%s/%d.json", board, page + 1), nil)
+	resp, err := get(APIURL, fmt.Sprintf("/%s/%d.json", board, page+1), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -398,17 +398,8 @@ func json_to_native(v *jsonPost, thread *Thread) *Post {
 
 // Update an existing thread in-place.
 func (self *Thread) Update() (new_posts, deleted_posts int, err error) {
-	cooldownMutex.Lock()
-	if self.cooldown != nil {
-		<-self.cooldown
-	}
 	var thread *Thread
 	thread, err = getThread(self.Board, self.Id(), self.date_recieved)
-	if UpdateCooldown < 10*time.Second {
-		UpdateCooldown = 10 * time.Second
-	}
-	self.cooldown = time.After(UpdateCooldown)
-	cooldownMutex.Unlock()
 	if err != nil {
 		return 0, 0, err
 	}
